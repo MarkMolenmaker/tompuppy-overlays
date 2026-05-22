@@ -37,6 +37,7 @@ export class KickChannelEventsWidget {
   private readonly eventQueue = signal<Array<KickChannelEvent>>([]);
   private readonly isPlaying = signal<boolean>(false);
 
+  private cachedGifBlob: Blob | null = null;
   protected readonly subscriptionGifUrl = signal<string>('');
   protected readonly isGifLoaded = signal<boolean>(false);
 
@@ -106,7 +107,20 @@ export class KickChannelEventsWidget {
         this.eventSubjectProfilePicUrl.set('');
       }
 
-      // Prepare Native Browser TTS
+      // Preload and reset GIF animation (Fetches it from the fast Blob cache)
+      this.isGifLoaded.set(false);
+      try {
+        const gifUrl = await this.preloadGif('assets/gifs/subscription.gif');
+        this.subscriptionGifUrl.set(gifUrl);
+        this.isGifLoaded.set(true);
+      } catch (error) {
+        console.error('Failed to preload gif', error);
+      }
+
+      // Show the event only after GIF is loaded.
+      this.kickChannelEvent.set(event);
+
+      // Prepare Text-to-Speech (TTS) if supported.
       let ttsTimeoutId: ReturnType<typeof setTimeout> | null = null;
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -121,20 +135,6 @@ export class KickChannelEventsWidget {
         console.warn('Text-to-Speech is not supported in this browser.');
       }
 
-      // Preload and reset GIF animation.
-      this.isGifLoaded.set(false);
-
-      try {
-        const gifUrl = await this.preloadGif('assets/gifs/subscription.gif');
-        this.subscriptionGifUrl.set(gifUrl);
-        this.isGifLoaded.set(true);
-      } catch (error) {
-        console.error('Failed to preload gif', error);
-      }
-
-      // Show the event only after GIF is loaded.
-      this.kickChannelEvent.set(event);
-
       // Call the appropriate handler based on the event type.
       if (event instanceof KickChannelSubscriptionEvent) {
         await this.playSubscriptionEventAudio();
@@ -147,9 +147,16 @@ export class KickChannelEventsWidget {
       // Reset and hide.
       this.kickChannelEvent.set(null);
       this.eventSubjectProfilePicUrl.set('');
+
+      // Clear temp Blob URL to prevent memory leaks.
+      if (this.subscriptionGifUrl().startsWith('blob:')) {
+        URL.revokeObjectURL(this.subscriptionGifUrl());
+      }
+
       this.subscriptionGifUrl.set('');
       this.isGifLoaded.set(false);
       this.stopAudio();
+
       if (ttsTimeoutId) clearTimeout(ttsTimeoutId);
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       await this.delay(500);
@@ -166,16 +173,13 @@ export class KickChannelEventsWidget {
   }
 
   private async preloadGif(path: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const cacheBustUrl = `${path}?t=${Date.now()}`;
+    if (!this.cachedGifBlob) {
+      const response = await fetch(path);
+      if (!response.ok) throw new Error('Network response for GIF was not ok');
+      this.cachedGifBlob = await response.blob();
+    }
 
-      const img = new Image();
-
-      img.onload = () => resolve(cacheBustUrl);
-      img.onerror = reject;
-
-      img.src = cacheBustUrl;
-    });
+    return URL.createObjectURL(this.cachedGifBlob);
   }
 
   private async playSubscriptionEventAudio(): Promise<void> {

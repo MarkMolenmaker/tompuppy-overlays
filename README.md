@@ -33,3 +33,8 @@ Use the following URL to embed the widget:
 **Running the development server**
 1. Run `pnpm start` to start the development server.
 2. Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+
+# TODO:
+- De delay van TTS wacht niet op de image.
+- Cache de image zodat hij niet altijd geladen hoeft te worden.
