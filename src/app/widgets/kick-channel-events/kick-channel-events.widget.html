@@ -3,7 +3,9 @@
     @let event = subscriptionEvent();
     <div class="alert-container" [style.animation-duration]="config.subscriptionEventDurationMS + 'ms'">
       <div class="event-wrapper">
-        <img class="background-image" src="assets/gifs/subscription.gif?t=0" alt="">
+        @if (isGifLoaded()) {
+          <img class="background-image" [src]="subscriptionGifUrl()" alt="">
+        }
         @if (eventSubjectProfilePicUrl()) {
           <img class="profile-picture subscription" [src]="eventSubjectProfilePicUrl()" alt="Profile Picture">
         }
@@ -18,7 +20,9 @@
     @let event = subscriptionGiftedEvent();
     <div class="alert-container" [style.animation-duration]="config.subscriptionGiftedEventDurationMS + 'ms'">
       <div class="event-wrapper">
-        <img class="background-image" src="assets/gifs/subscription.gif?t=0" alt="">
+        @if (isGifLoaded()) {
+          <img class="background-image" [src]="subscriptionGifUrl()" alt="">
+        }
         @if (eventSubjectProfilePicUrl()) {
           <img class="profile-picture subscription-gifted" [src]="eventSubjectProfilePicUrl()" alt="Profile Picture">
         }

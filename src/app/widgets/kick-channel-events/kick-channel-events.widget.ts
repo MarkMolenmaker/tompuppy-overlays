@@ -10,14 +10,10 @@ import {
   KickChannelSubscriptionEvent,
   KickChannelSubscriptionGiftedEvent
 } from '../../common/kick-channel-events';
-import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-kick-channel-events',
   standalone: true,
-  imports: [
-    NgStyle // TODO: refactor away from NgStyle
-  ],
   templateUrl: './kick-channel-events.widget.html',
   styleUrl: './kick-channel-events.widget.scss',
   providers: [
@@ -40,6 +36,9 @@ export class KickChannelEventsWidget {
   protected readonly eventSubjectProfilePicUrl = signal<string>('');
   private readonly eventQueue = signal<Array<KickChannelEvent>>([]);
   private readonly isPlaying = signal<boolean>(false);
+
+  protected readonly subscriptionGifUrl = signal<string>('');
+  protected readonly isGifLoaded = signal<boolean>(false);
 
   private readonly subscriptionAudio = signal<HTMLAudioElement>(new Audio('assets/audio/subscription.mp3'));
   private readonly subscriptionGiftedAudio = signal<HTMLAudioElement>(new Audio('assets/audio/subscription.mp3'));
@@ -122,7 +121,18 @@ export class KickChannelEventsWidget {
         console.warn('Text-to-Speech is not supported in this browser.');
       }
 
-      // Show the event on the screen.
+      // Preload and reset GIF animation.
+      this.isGifLoaded.set(false);
+
+      try {
+        const gifUrl = await this.preloadGif('assets/gifs/subscription.gif');
+        this.subscriptionGifUrl.set(gifUrl);
+        this.isGifLoaded.set(true);
+      } catch (error) {
+        console.error('Failed to preload gif', error);
+      }
+
+      // Show the event only after GIF is loaded.
       this.kickChannelEvent.set(event);
 
       // Call the appropriate handler based on the event type.
@@ -137,6 +147,8 @@ export class KickChannelEventsWidget {
       // Reset and hide.
       this.kickChannelEvent.set(null);
       this.eventSubjectProfilePicUrl.set('');
+      this.subscriptionGifUrl.set('');
+      this.isGifLoaded.set(false);
       this.stopAudio();
       if (ttsTimeoutId) clearTimeout(ttsTimeoutId);
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -151,6 +163,19 @@ export class KickChannelEventsWidget {
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private async preloadGif(path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const cacheBustUrl = `${path}?t=${Date.now()}`;
+
+      const img = new Image();
+
+      img.onload = () => resolve(cacheBustUrl);
+      img.onerror = reject;
+
+      img.src = cacheBustUrl;
+    });
   }
 
   private async playSubscriptionEventAudio(): Promise<void> {
