@@ -1,59 +1,35 @@
-# TompuppyOverlays
-
+# Tompuppy Overlays
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
 
-## Development server
+## Widgets
+Widgets are hosted on the base URL `https://markmolenmaker.github.io/tompuppy-overlays/#/widgets/...?chatroomId=...`. <br>
+All widgets are configurable via Query parameters.
 
-To start a local development server, run:
+The first parameter is always appended with a `?` character. <br>
+All additional parameters are appended with a `&` character.
 
-```bash
-ng serve
-```
+**Global Required parameters**:
+- `chatroomId`: The chatroom ID of the channel you want to embed the widget in.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+**Global Optional parameters**:
+- `admin`: The username-slug of the admin who can control the widget. This parameter can be appended multiple times to allow multiple admins.
+  - Example: `?admin=tompuppy&admin=inazumark`
 
-## Code scaffolding
+### Kick Channel Events
+Use the following URL to embed the widget:
+`https://markmolenmaker.github.io/tompuppy-overlays/#/widgets/kick-channel-events?chatroomId=...`
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+**Optional parameters**:
+- `audioVolume`: The volume of the audio (0-1). Default: 0.5
+- `audioTTSVolume`: The volume of the audio (0-1). Default: 1
+- `subscriptionEventDurationMS`: The duration of the subscription event in milliseconds. Default: 10000
+- `subscriptionGiftedEventDurationMS`: The duration of the subscription gifted event in milliseconds. Default: 10000
 
-```bash
-ng generate component component-name
-```
+## Development
+**Setting up the development environment**
+1. Clone the repository.
+2. Run `pnpm install` to install all dependencies.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+**Running the development server**
+1. Run `pnpm start` to start the development server.
+2. Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.

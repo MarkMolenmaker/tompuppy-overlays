@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Variables.
+$border-radius: 12px;
+
+$border-color: rgb(75, 75, 83);
+$background-color: rgb(9, 9, 15);
+$background-row-color: rgb(36, 36, 46);
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  color: white;
+  font-family: Oxanium, sans-serif;
+  background-color: transparent;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px;
+
+  gap: 8px;
+  border-radius: $border-radius;
+  background-color: $background-color;
+  transition: all 0.2s ease-in-out;
+}
+
+.hidden {
+  display: none;
+  opacity: 0;
+}

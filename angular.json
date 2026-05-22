@@ -35,6 +35,8 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/tompuppy-overlays/",
+              "deployUrl": "/tompuppy-overlays/",
               "budgets": [
                 {
                   "type": "initial",
